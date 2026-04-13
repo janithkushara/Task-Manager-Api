@@ -15,10 +15,12 @@ const usershema=new mongoose.Schema({
     email:{
         type:String,
         unique:true,
-        required:true
+        required:true,
+        lowercase:true,
+        trim:true
     },
     password:{
-        trype:String,
+        type:String,
         required:true
     },
     role:{
