@@ -1,0 +1,34 @@
+const mongoose=require("mongoose");
+
+const usershema=new mongoose.Schema({
+
+    firstname:{
+        type:String,
+        required:true,
+        trim:true
+    },
+    lastname:{
+        type:String,
+        required:true,
+        trim:true
+    },
+    email:{
+        type:String,
+        unique:true,
+        required:true
+    },
+    password:{
+        trype:String,
+        required:true
+    },
+    role:{
+        type:String,
+        required:true,
+        default:"user"
+    }
+
+},{
+    timestamps:true
+}
+);
+module.exports=mongoose.model("user",usershema);
