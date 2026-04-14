@@ -2,7 +2,7 @@ const user=require("../models/user");
 const generatetoken=require("../utils/genratetikens");
 const bcrypt=require("bcryptjs");
 const genaraterefresh=require("../utils/generaterefreshtokens");
-
+const jwt=require("jsonwebtoken");
 
 exports.signup=async(req,res)=>{
     try{
@@ -70,4 +70,23 @@ exports.signin=async(req,res)=>{
        }catch(error){
          res.status(500).json({message:"serever error"});
        }
+};
+exports.refreshToken=async(req,res)=>{
+    try{
+    const{refreshToken}=req.body;
+    if(!refreshToken){
+        return res.status(401).json({message:"no refresh token"});
+    }
+    const decoded=jwt.verify(refreshToken,process.env.JWT_REFRESH_SECRET);
+    const finduser=await user.findById(decoded.id);
+    if(!finduser || finduser.refreshToken !==refreshToken){
+        return res.status(403).json({message:"invalid refresh token"});
+    }
+    const newAccessToken=generatetoken(finduser._id);
+   return res.json({
+        accesstoken:newAccessToken
+    });
+  }catch(error){
+          res.status(403).json({message:"invalid or expired refresh token"});
+  }
 };
