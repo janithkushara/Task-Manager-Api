@@ -1,16 +1,16 @@
 const user=require("../models/user");
 const generatetoken=require("../utils/genratetikens");
-const protect=require("../middleware/authmiddleware");
 const bcrypt=require("bcryptjs");
 
 
 exports.signup=async(req,res)=>{
     try{
-        const{firstname,lastname,email,password,role}=req.body;
+        let{firstname,lastname,email,password}=req.body;
 
-        if(!firstname || !lastname || !email|| !password || !role){
+        if(!firstname || !lastname || !email|| !password ){
             return res.status(400).json({message:"all fields must be filled"});
         }
+        email=email.toLowerCase();
         const userexist=await user.findOne({email});
         if(userexist){
             return res.status(400).json({message:"user already exists"});
@@ -21,8 +21,8 @@ exports.signup=async(req,res)=>{
             firstname,
             lastname,
             email,
-            role,
-            password:hashedpassword
+            password:hashedpassword,
+            role:"user"
         });
         res.status(201).json({
             id:newuser._id,
@@ -35,4 +35,31 @@ exports.signup=async(req,res)=>{
     }catch(error){
         res.status(500).json({message:error.message});
     }
-}
+};
+exports.signin=async(req,res)=>{
+       try{
+        let{email,password}=req.body;
+        if(!email || !password){
+            return res.status(400).json({message:"all fields should filed"});
+        }
+        email=email.toLowerCase();
+        const finduser=await user.findOne({email});
+        if(!finduser){
+            return res.status(400).json({message:"invalid credentials"});
+        }
+        const ismatch=await bcrypt.compare(password,finduser.password);
+        if(!ismatch){
+            return res.status(400).json({message:"invalid credentials"});
+        }
+        res.status(200).json({
+            id:finduser._id,
+            firstname:finduser.firstname,
+            lastname:finduser.lastname,
+            email:finduser.email,
+            role:finduser.role,
+            token:generatetoken(finduser._id)
+        });
+       }catch(error){
+         res.status(500).json({message:"serever error"});
+       }
+};
