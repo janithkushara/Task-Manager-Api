@@ -1,6 +1,7 @@
 const user=require("../models/user");
 const generatetoken=require("../utils/genratetikens");
 const bcrypt=require("bcryptjs");
+const genaraterefresh=require("../utils/generaterefreshtokens");
 
 
 exports.signup=async(req,res)=>{
@@ -51,13 +52,20 @@ exports.signin=async(req,res)=>{
         if(!ismatch){
             return res.status(400).json({message:"invalid credentials"});
         }
+        const accesstoken=generatetoken(finduser._id);
+        const refreshToken=genaraterefresh(finduser._id);
+
+        finduser.refreshToken=refreshToken;
+        await finduser.save();
         res.status(200).json({
             id:finduser._id,
             firstname:finduser.firstname,
             lastname:finduser.lastname,
             email:finduser.email,
             role:finduser.role,
-            token:generatetoken(finduser._id)
+            accesstoken,
+            refreshToken
+
         });
        }catch(error){
          res.status(500).json({message:"serever error"});
