@@ -90,3 +90,21 @@ exports.refreshToken=async(req,res)=>{
           res.status(403).json({message:"invalid or expired refresh token"});
   }
 };
+exports.logout=async(req,res)=>{
+    try{
+        const{refreshToken}=req.body;
+        if(!refreshToken){
+            return res.status(401).json({message:"no token found"});
+        }
+        const finduser=await user.findOne({refreshToken});
+        if(!finduser){
+            return res.status(204).json({message:"user alreday logout"});
+        }
+        finduser.refreshToken=null;
+        await finduser.save();
+
+        res.json({message:"logout successfull"});
+    }catch(error){
+        res.status(500).json({message:"sever error"});
+    }
+};
