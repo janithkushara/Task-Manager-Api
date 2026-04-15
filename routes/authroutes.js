@@ -1,5 +1,5 @@
 const express=require("express");
-const {protect}=require("../middleware/authmiddleware");
+const {protect,isadmin}=require("../middleware/authmiddleware");
 const{
     signup,
     signin,
@@ -11,6 +11,9 @@ router.post("/register",signup);
 router.post("/login",signin);
 router.post("/refresh-token",refreshToken);
 router.post("/logout",logout);
+router.get("/admin",protect,isadmin,(req,res)=>{
+    res.json({message:"welcome admin"});
+});
 
 
 module.exports=router;

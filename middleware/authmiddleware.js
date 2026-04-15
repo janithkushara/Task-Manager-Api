@@ -22,4 +22,15 @@ const protect=async(req,res,next)=>{
        return  res.status(401).json({message:"no token"});
     }
 };
-module.exports={protect};
+
+const isadmin=(req,res,next)=>{
+       
+          if(!req.user){
+            return res.status(401).json({message:"user not exisit"});
+          }
+          if(req.user.role!=="admin"){
+            return res.status(403).json({message:"access denied"});
+          }
+          next();
+};
+module.exports={protect,isadmin};
