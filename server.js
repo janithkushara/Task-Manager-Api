@@ -12,6 +12,7 @@ app.use(morgan("dev"));
 app.use(cors());
 app.use(express.json());
 app.use("/api/auth",require("./routes/authroutes"));
+app.use("/api/task/",require("./routes/taskroute"));
 
 
 const PORT=process.env.PORT || 5000;
