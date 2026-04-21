@@ -53,6 +53,8 @@ exports.gettaskbyid=async(req,res)=>{
             _id:taskId,
             user:req.user._id
         });
+        console.log("PARAM ID:", taskId);
+        console.log("TOKEN USER:", req.user._id);
         if(!onetask){
             return res.status(404).json({message:"task not found"});
         }
@@ -99,6 +101,8 @@ exports.deletetask=async(req,res)=>{
             _id:taskId,
             user:req.user._id
         });
+        console.log("PARAM ID:", taskId);
+        console.log("TOKEN USER:", req.user._id);
         if(!DeletedTask){
             return res.status(404).json({
                 message:"task not exist"
