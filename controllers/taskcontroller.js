@@ -1,3 +1,4 @@
+const { Query } = require("mongoose");
 const task=require("../models/task");
 const user=require("../models/user");
 
@@ -37,8 +38,24 @@ exports.addtask=async(req,res)=>{
 
 exports.gettask=async(req,res)=>{
     try{
-        const usertask=await task.find({user:req.user._id});
-        res.status(200).json(usertask);
+        
+        const filter={user:req.user._id};
+        if(req.query.completed!== undefined){
+             filter.completed=req.query.completed === "true";
+        }
+        const count=await filter.countDocuments();
+        const page= +req.query.page || 1;
+        const limit= +req.query.limit || 5;
+        const skip= (page-1)*limit;
+        if(skip>=count){
+            return res.status(404).json({message:"page not found"});
+        }
+        filter.skip(skip).limit(limit);
+        const findtask=await task.find(filter);
+      
+        
+        res.status(200).json(findtask);
+       
     }catch(error){
         res.status(500).json({
             message:"failed to fetch task",
@@ -53,8 +70,8 @@ exports.gettaskbyid=async(req,res)=>{
             _id:taskId,
             user:req.user._id
         });
-        console.log("PARAM ID:", taskId);
-        console.log("TOKEN USER:", req.user._id);
+      //  console.log("PARAM ID:", taskId);
+       // console.log("TOKEN USER:", req.user._id);
         if(!onetask){
             return res.status(404).json({message:"task not found"});
         }
@@ -101,8 +118,8 @@ exports.deletetask=async(req,res)=>{
             _id:taskId,
             user:req.user._id
         });
-        console.log("PARAM ID:", taskId);
-        console.log("TOKEN USER:", req.user._id);
+       // console.log("PARAM ID:", taskId);
+       // console.log("TOKEN USER:", req.user._id);
         if(!DeletedTask){
             return res.status(404).json({
                 message:"task not exist"
