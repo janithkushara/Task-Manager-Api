@@ -43,18 +43,28 @@ exports.gettask=async(req,res)=>{
         if(req.query.completed!== undefined){
              filter.completed=req.query.completed === "true";
         }
-        const count=await filter.countDocuments();
+        if(req.query.search!==undefined){
+            filter.title={
+                $regex:req.query.search,
+                $options:"i"
+            }
+        }
+
         const page= +req.query.page || 1;
         const limit= +req.query.limit || 5;
         const skip= (page-1)*limit;
-        if(skip>=count){
+        const count=await task.countDocuments(filter);
+         if(skip>=count){
             return res.status(404).json({message:"page not found"});
         }
-        filter.skip(skip).limit(limit);
-        const findtask=await task.find(filter);
-      
-        
-        res.status(200).json(findtask);
+         const findtask=await task.find(filter).skip(skip).limit(limit); 
+       
+        res.status(200).json({
+            "total":count,
+            "page":page,
+            "limit":limit,
+            "data":findtask
+        });
        
     }catch(error){
         res.status(500).json({
