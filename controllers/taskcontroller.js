@@ -40,14 +40,21 @@ exports.gettask=async(req,res)=>{
     try{
         
         const filter={user:req.user._id};
-        if(req.query.completed!== undefined){
+        if(req.query.completed!==""){
              filter.completed=req.query.completed === "true";
         }
-        if(req.query.search!==undefined){
+        if(req.query.search && req.query.search.trim()!==""){
             filter.title={
                 $regex:req.query.search,
                 $options:"i"
             }
+        }
+        let sortOption = { createdAt: -1 };
+        if(req.query.sort && req.query.sort.trim()!== ""){
+            const[field,order]=req.query.sort.split("_");
+             const sortOption = {
+             [field]: order === "desc" ? -1 : 1
+             };
         }
 
         const page= +req.query.page || 1;
@@ -57,7 +64,7 @@ exports.gettask=async(req,res)=>{
          if(skip>=count){
             return res.status(404).json({message:"page not found"});
         }
-         const findtask=await task.find(filter).skip(skip).limit(limit); 
+         const findtask=await task.find(filter).sort(sortOption).skip(skip).limit(limit); 
        
         res.status(200).json({
             "total":count,
