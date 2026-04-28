@@ -1,37 +1,17 @@
 const { Query } = require("mongoose");
 const task=require("../models/task");
 const user=require("../models/user");
-const { buildfilter } = require("../services/taskservices");
+const { gettask, creattask,buildfilter,buildpagination,buildsort,titlevalidation, findtask,update,deletetask } = require("../services/taskservices");
 
 exports.addtask=async(req,res)=>{
     try{
-        const{title}=req.body;
-        if(typeof title !== "string"){
-            return res.status(400).json({message:"title shoud be in proper format"});
-        }
-        if(!title?.trim()){
-            return res.status(400).json({message:"field must be filled"});
-        }
-        const taskexist=await task.findOne({title,user:req.user._id});
-        
-        if(taskexist){
-            return res.status(400).json({message:"task already exist"});
-        }
-        
-        const newtask=await task.create({
-            title,
-            completed:false,
-            user:req.user._id
-        });
-        res.status(201).json({
-         _id: newtask._id,
-        title: newtask.title,
-        completed: newtask.completed,
-        user: newtask.user,
-        createdAt: newtask.createdAt,
-        updatedAt: newtask.updatedAt
-         });
-
+        //console.log("BODY:", req.body);
+       //console.log("TYPE OF TITLE:", typeof req.body?.title);
+       const result=await creattask(req.user._id,req.body);
+       console.log("BODY:", req.body);
+       console.log("TYPE OF TITLE:", typeof req.body?.title);
+       res.status(200).json(result);
+       
     }catch(error){
         res.status(500).json({message:error.message});
     }
@@ -39,7 +19,7 @@ exports.addtask=async(req,res)=>{
 
 exports.gettask=async(req,res)=>{
     try{
-        const result=await gettask(req.query,req.user._id);
+        const result=await gettask(req.user._id,req.query);
         res.status(200).json(result);
        
     }catch(error){
@@ -51,17 +31,8 @@ exports.gettask=async(req,res)=>{
 };
 exports.gettaskbyid=async(req,res)=>{
     try{
-        const {taskId}=req.params;
-        const onetask=await task.findOne({
-            _id:taskId,
-            user:req.user._id
-        });
-      //  console.log("PARAM ID:", taskId);
-       // console.log("TOKEN USER:", req.user._id);
-        if(!onetask){
-            return res.status(404).json({message:"task not found"});
-        }
-        res.status(200).json(onetask);
+        const result=await findtask(req.user._id,req.params);
+        res.status(200).json(result);
     }catch(error){
         return res.status(500).json({
             message:"failed to fetched task",
@@ -71,23 +42,8 @@ exports.gettaskbyid=async(req,res)=>{
 };
 exports.updatetask=async(req,res)=>{
     try{
-        const {taskId}=req.params;
-        const taskexist=await task.findOne({
-            _id:taskId,
-            user:req.user._id
-        });
-        if(!taskexist){
-            return res.status(404).json({ message:"task not found"})
-        }
-        const allowedfileds = ["title","completed"];
-        
-        allowedfileds.forEach((field) => {
-            if(taskexist[field]!==undefined){
-            taskexist[field]=req.body[field];
-            }
-        });
-        await taskexist.save();
-        res.status(200).json(taskexist);
+        const result=await update(req.user._id,req.params,req.body);
+        res.status(200).json(result);
         
 
     }catch(error){
@@ -99,20 +55,9 @@ exports.updatetask=async(req,res)=>{
 };
 exports.deletetask=async(req,res)=>{
     try{
-        const {taskId}=req.params;
-        const DeletedTask=await task.findOneAndDelete({
-            _id:taskId,
-            user:req.user._id
-        });
-       // console.log("PARAM ID:", taskId);
-       // console.log("TOKEN USER:", req.user._id);
-        if(!DeletedTask){
-            return res.status(404).json({
-                message:"task not exist"
-            });
-        }
+        const result=await deletetask(req.user._id,req.params);
         res.status(200).json({message:"task deleted succesfully",
-            title:DeletedTask.title
+            title:result.title
         });
 
     }catch(error){
