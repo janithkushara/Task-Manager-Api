@@ -1,6 +1,7 @@
 const { Query } = require("mongoose");
 const task=require("../models/task");
 const user=require("../models/user");
+const { buildfilter } = require("../services/taskservices");
 
 exports.addtask=async(req,res)=>{
     try{
@@ -38,40 +39,8 @@ exports.addtask=async(req,res)=>{
 
 exports.gettask=async(req,res)=>{
     try{
-        
-        const filter={user:req.user._id};
-        if(req.query.completed!==""){
-             filter.completed=req.query.completed === "true";
-        }
-        if(req.query.search && req.query.search.trim()!==""){
-            filter.title={
-                $regex:req.query.search,
-                $options:"i"
-            }
-        }
-        let sortOption = { createdAt: -1 };
-        if(req.query.sort && req.query.sort.trim()!== ""){
-            const[field,order]=req.query.sort.split("_");
-             const sortOption = {
-             [field]: order === "desc" ? -1 : 1
-             };
-        }
-
-        const page= +req.query.page || 1;
-        const limit= +req.query.limit || 5;
-        const skip= (page-1)*limit;
-        const count=await task.countDocuments(filter);
-         if(skip>=count){
-            return res.status(404).json({message:"page not found"});
-        }
-         const findtask=await task.find(filter).sort(sortOption).skip(skip).limit(limit); 
-       
-        res.status(200).json({
-            "total":count,
-            "page":page,
-            "limit":limit,
-            "data":findtask
-        });
+        const result=await gettask(req.query,req.user._id);
+        res.status(200).json(result);
        
     }catch(error){
         res.status(500).json({
