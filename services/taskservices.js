@@ -52,14 +52,14 @@ exports.gettask=async(user,query)=>{
 
 exports.creattask=async(user,body)=>{
         
-        const taskexist=await task.findOne({title,user:user});
+        const taskexist=await task.findOne({title:body.title,user:user});
         
         if(taskexist){
              throw new Error("task already exist");
         }
         
         const newtask=await task.create({
-            title,
+            title:body.title,
             completed:false,
             user:user
         });

@@ -8,12 +8,12 @@ exports.addtask=async(req,res)=>{
         //console.log("BODY:", req.body);
        //console.log("TYPE OF TITLE:", typeof req.body?.title);
        const result=await creattask(req.user._id,req.body);
-       console.log("BODY:", req.body);
-       console.log("TYPE OF TITLE:", typeof req.body?.title);
+       //console.log("BODY:", req.body);
+       //console.log("TYPE OF TITLE:", typeof req.body?.title);
        res.status(200).json(result);
        
     }catch(error){
-        res.status(500).json({message:error.message});
+       next(error);
     }
 };
 
@@ -23,10 +23,7 @@ exports.gettask=async(req,res)=>{
         res.status(200).json(result);
        
     }catch(error){
-        res.status(500).json({
-            message:"failed to fetch task",
-            error:error.message
-        });
+        next(error);
     }
 };
 exports.gettaskbyid=async(req,res)=>{
@@ -34,10 +31,7 @@ exports.gettaskbyid=async(req,res)=>{
         const result=await findtask(req.user._id,req.params);
         res.status(200).json(result);
     }catch(error){
-        return res.status(500).json({
-            message:"failed to fetched task",
-            error:error.message
-        });
+       next(error);
     }
 };
 exports.updatetask=async(req,res)=>{
@@ -47,10 +41,7 @@ exports.updatetask=async(req,res)=>{
         
 
     }catch(error){
-        res.status(500).json({
-            message:"failed to fetched task",
-            error:error.message
-        });     
+       next(error);    
     }
 };
 exports.deletetask=async(req,res)=>{
@@ -61,9 +52,6 @@ exports.deletetask=async(req,res)=>{
         });
 
     }catch(error){
-        res.status(500).json({
-            message:"failed to fetch task",
-            error:error.message
-        });
+       next(error);
     }
 };
