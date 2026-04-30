@@ -49,18 +49,9 @@ exports.gettask=async(user,query)=>{
         });
 
 };
-exports.titlevalidation=(body)=>{
-            const{title}=body;
-                   if(!title || typeof title !== "string"){
-                       throw new Error("title shoud  need and should be in proper format");
-                   }
-                   if(!title?.trim()){
-                       throw new Error("field must be filled");
-                   }
-                   return title.trim();
-}
+
 exports.creattask=async(user,body)=>{
-        const title=this.titlevalidation(body);
+        
         const taskexist=await task.findOne({title,user:user});
         
         if(taskexist){
