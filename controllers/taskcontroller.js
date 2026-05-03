@@ -3,13 +3,10 @@ const task=require("../models/task");
 const user=require("../models/user");
 const { gettask, creattask,buildfilter,buildpagination,buildsort,titlevalidation, findtask,update,deletetask } = require("../services/taskservices");
 
-exports.addtask=async(req,res)=>{
+exports.addtask=async(req,res,next)=>{
     try{
-        //console.log("BODY:", req.body);
-       //console.log("TYPE OF TITLE:", typeof req.body?.title);
+        
        const result=await creattask(req.user._id,req.body);
-       //console.log("BODY:", req.body);
-       //console.log("TYPE OF TITLE:", typeof req.body?.title);
        res.status(200).json(result);
        
     }catch(error){
@@ -17,7 +14,7 @@ exports.addtask=async(req,res)=>{
     }
 };
 
-exports.gettask=async(req,res)=>{
+exports.gettask=async(req,res,next)=>{
     try{
         const result=await gettask(req.user._id,req.query);
         res.status(200).json(result);
@@ -26,7 +23,7 @@ exports.gettask=async(req,res)=>{
         next(error);
     }
 };
-exports.gettaskbyid=async(req,res)=>{
+exports.gettaskbyid=async(req,res,next)=>{
     try{
         const result=await findtask(req.user._id,req.params);
         res.status(200).json(result);
@@ -34,7 +31,7 @@ exports.gettaskbyid=async(req,res)=>{
        next(error);
     }
 };
-exports.updatetask=async(req,res)=>{
+exports.updatetask=async(req,res,next)=>{
     try{
         const result=await update(req.user._id,req.params,req.body);
         res.status(200).json(result);
@@ -44,7 +41,7 @@ exports.updatetask=async(req,res)=>{
        next(error);    
     }
 };
-exports.deletetask=async(req,res)=>{
+exports.deletetask=async(req,res,next)=>{
     try{
         const result=await deletetask(req.user._id,req.params);
         res.status(200).json({message:"task deleted succesfully",
