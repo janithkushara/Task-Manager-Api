@@ -1,0 +1,36 @@
+const jwt=require("jsonwebtoken");
+const user=require("../models/user");
+const protect=async(req,res,next)=>{
+    let token;
+
+    if(
+        req.headers.authorization &&
+        req.headers.authorization.startsWith("Bearer")
+
+    ){
+        try{
+            token=req.headers.authorization.split(" ")[1];
+
+            const decoded=jwt.verify(token,process.env.JWT_SECRET);
+            req.user= await user.findById(decoded.id).select("-password");
+            next();
+        }catch(error){
+           return res.status(401).json({message:"not authorized,token failed"});
+        }
+    }
+    if(!token){
+       return  res.status(401).json({message:"no token"});
+    }
+};
+
+const isadmin=(req,res,next)=>{
+       
+          if(!req.user){
+            return res.status(401).json({message:"user not exisit"});
+          }
+          if(req.user.role!=="admin"){
+            return res.status(403).json({message:"access denied"});
+          }
+          next();
+};
+module.exports={protect,isadmin};
